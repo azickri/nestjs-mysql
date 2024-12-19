@@ -6,9 +6,3 @@ Running:
 ```bash
 npm install && npm run start:dev
 ```
-
-Testing:
-
-```bash
-npm run test
-```
