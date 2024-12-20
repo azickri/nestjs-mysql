@@ -2,10 +2,15 @@ import * as dotenv from 'dotenv';
 dotenv.config();
 
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserModel } from './model/user.model';
+import { AuthController } from './module/auth/auth.controller';
+import { AuthService } from './module/auth/auth.service';
+import { UserController } from './module/user/user.controller';
+import { UserService } from './module/user/user.service';
+import { TodoController } from './module/todo/todo.controller';
+import { TodoService } from './module/todo/todo.service';
+import { TodoModel } from './model/todo.model';
 
 @Module({
   imports: [
@@ -22,9 +27,9 @@ import { UserModel } from './model/user.model';
       logging: true,
       entities: ['dist/**/*.model.js'],
     }),
-    TypeOrmModule.forFeature([UserModel]),
+    TypeOrmModule.forFeature([UserModel, TodoModel]),
   ],
-  controllers: [AppController],
-  providers: [AppService],
+  controllers: [AuthController, UserController, TodoController],
+  providers: [AuthService, UserService, TodoService],
 })
 export class AppModule {}

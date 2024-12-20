@@ -2,8 +2,10 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
+import { TodoModel } from './todo.model';
 
 @Entity('users')
 export class UserModel {
@@ -14,16 +16,16 @@ export class UserModel {
   username: string;
 
   @Column({ type: String })
-  email: string;
-
-  @Column({ type: Number })
-  age: number;
-
-  @Column({ type: Boolean, default: true })
-  isHuman: boolean;
+  name: string;
 
   @Column({ type: String })
-  currentClass: string;
+  email: string;
+
+  @Column({ type: String })
+  password: string;
+
+  @OneToMany(() => TodoModel, (todo) => todo.user)
+  todos: TodoModel[];
 
   @CreateDateColumn()
   createdAt: Date;
