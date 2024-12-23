@@ -1,10 +1,11 @@
 import { TodoModel } from '@/model/todo.model';
 import { HttpException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Brackets, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { BodyCreateTodoDto, QueryGetTodoDto } from './todo.dto';
 import { User } from '@/type/user.type';
 import { UserModel } from '@/model/user.model';
+import { QueryHelper } from '@/helper/query.helper';
 
 @Injectable()
 export class TodoService {
@@ -15,29 +16,26 @@ export class TodoService {
   ) {}
 
   async getTodo(query: QueryGetTodoDto, user: User) {
-    const qb = this.todoRepository
+    const builder = this.todoRepository
       .createQueryBuilder('todo')
       .where(`todo.user.id = ${user.id}`);
 
     if (query.search) {
       const filter = { search: `%${query.search}%` };
-
-      qb.andWhere(
-        new Brackets((query) => {
-          query
-            .where(`LOWER(todo.title) LIKE LOWER(:search)`, filter)
-            .orWhere(`LOWER(todo.value) LIKE LOWER(:search)`, filter);
-        }),
-      );
+      builder.andWhere(QueryHelper.bracketWhere(filter));
     }
 
     const page = Number(query.page);
     const limit = Number(query.limit);
     const skip = (page - 1) * limit;
 
-    const [docs, totalDocs] = await Promise.all([
-      qb.skip(skip).take(limit).orderBy('todo.createdAt', 'DESC').getMany(),
-      qb.getCount(),
+    const [totalDocs, docs] = await Promise.all([
+      builder.getCount(),
+      builder
+        .skip(skip)
+        .take(limit)
+        .orderBy('todo.createdAt', 'DESC')
+        .getMany(),
     ]);
 
     const totalPages = Math.ceil(totalDocs / limit);
